@@ -3,10 +3,12 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar, Users, Radio, Pencil, Trash2 } from "lucide-react";
+import { Plus, Calendar, Users, Radio, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Projects = () => {
+  const navigate = useNavigate();
   const [projects] = useState([
     {
       id: 1,
@@ -79,18 +81,20 @@ const Projects = () => {
                   </div>
                 </div>
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Pencil className="h-4 w-4 mr-1" />
-                    Edit
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => navigate(`/projects/${project.id}`)}
+                  >
+                    View Details
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1"
                     onClick={() => handleDelete(project.id)}
                   >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>
