@@ -5,10 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Radio, ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 const Sensors = () => {
+  const { toast } = useToast();
   const [expandedGateways, setExpandedGateways] = useState<Set<string>>(new Set(["gw1"]));
   const [expandedZones, setExpandedZones] = useState<Set<string>>(new Set(["esp1"]));
+  const [showAddGateway, setShowAddGateway] = useState(false);
+  const [showAddZone, setShowAddZone] = useState(false);
+  const [showAddSensor, setShowAddSensor] = useState(false);
+  const [selectedGatewayForZone, setSelectedGatewayForZone] = useState<string | null>(null);
+  const [selectedZoneForSensor, setSelectedZoneForSensor] = useState<string | null>(null);
 
   const toggleGateway = (gatewayId: string) => {
     const newExpanded = new Set(expandedGateways);
@@ -88,7 +98,7 @@ const Sensors = () => {
             <h1 className="text-3xl font-bold text-foreground">Sensor Hierarchy</h1>
             <p className="text-muted-foreground mt-1">Manage gateways, ESP32 zones, and sensors</p>
           </div>
-          <Button>
+          <Button onClick={() => setShowAddGateway(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Gateway
           </Button>
@@ -172,7 +182,15 @@ const Sensors = () => {
                               </div>
                             </div>
                           ))}
-                          <Button variant="outline" size="sm" className="w-full mt-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full mt-2"
+                            onClick={() => {
+                              setSelectedZoneForSensor(zone.zoneId);
+                              setShowAddSensor(true);
+                            }}
+                          >
                             <Plus className="h-3 w-3 mr-1" />
                             Add Sensor
                           </Button>
@@ -180,7 +198,15 @@ const Sensors = () => {
                       )}
                     </div>
                   ))}
-                  <Button variant="outline" size="sm" className="w-full">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => {
+                      setSelectedGatewayForZone(gateway.gatewayId);
+                      setShowAddZone(true);
+                    }}
+                  >
                     <Plus className="h-3 w-3 mr-1" />
                     Add ESP32 Zone
                   </Button>
@@ -189,6 +215,87 @@ const Sensors = () => {
             </Card>
           ))}
         </div>
+
+        {/* Add Gateway Dialog */}
+        <Dialog open={showAddGateway} onOpenChange={setShowAddGateway}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Gateway</DialogTitle>
+              <DialogDescription>Add a new Raspberry Pi gateway to your network</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="gateway-name">Gateway Name</Label>
+                <Input id="gateway-name" placeholder="e.g., Main Lab Pi Gateway" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gateway-ip">IP Address</Label>
+                <Input id="gateway-ip" placeholder="e.g., 192.168.1.100" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAddGateway(false)}>Cancel</Button>
+              <Button onClick={() => {
+                toast({ title: "Gateway added successfully" });
+                setShowAddGateway(false);
+              }}>Add Gateway</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add ESP32 Zone Dialog */}
+        <Dialog open={showAddZone} onOpenChange={setShowAddZone}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add ESP32 Zone</DialogTitle>
+              <DialogDescription>Add a new ESP32 zone to this gateway</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="zone-name">Zone Name</Label>
+                <Input id="zone-name" placeholder="e.g., North Wing ESP32" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="zone-address">ESP32 Address</Label>
+                <Input id="zone-address" placeholder="e.g., 0x3C:A4:B1:2F" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAddZone(false)}>Cancel</Button>
+              <Button onClick={() => {
+                toast({ title: "ESP32 zone added successfully" });
+                setShowAddZone(false);
+              }}>Add Zone</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Sensor Dialog */}
+        <Dialog open={showAddSensor} onOpenChange={setShowAddSensor}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Sensor</DialogTitle>
+              <DialogDescription>Add a new sensor to this ESP32 zone</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="sensor-name">Sensor Name</Label>
+                <Input id="sensor-name" placeholder="e.g., Temperature Sensor" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sensor-type">Sensor Type</Label>
+                <Input id="sensor-type" placeholder="e.g., DHT22" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAddSensor(false)}>Cancel</Button>
+              <Button onClick={() => {
+                toast({ title: "Sensor added successfully" });
+                setShowAddSensor(false);
+              }}>Add Sensor</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
